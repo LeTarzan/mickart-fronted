@@ -1,6 +1,7 @@
 import Dashboard from "views/Dashboard.jsx";
 import NewSell from "views/NewSell.jsx";
 import NewClient from "views/NewUser.jsx";
+import Sells from "views/Sells.jsx";
 
 import DashboardOld from "views/DashboardOld.jsx";
 import Icons from "views/Icons.jsx";
@@ -33,15 +34,23 @@ var routes = [
     name: "Novo Cliente",
     rtlName: "لوحة القيادة",
     component: NewClient,
-    icon: "tim-icons icon-chart-pie-36",
+    icon: "tim-icons icon-single-02",
     layout: "/admin"
   },
   {
     path: "/new-sell",
     name: "Nova Venda",
     rtlName: "لوحة القيادة",
-    icon: "tim-icons icon-chart-pie-36",
+    icon: "tim-icons icon-notes",
     component: NewSell,
+    layout: "/admin"
+  },
+  {
+    path: "/sells",
+    name: "Vendas",
+    rtlName: "لوحة القيادة",
+    icon: "tim-icons icon-paper",
+    component: Sells,
     layout: "/admin"
   },
   {

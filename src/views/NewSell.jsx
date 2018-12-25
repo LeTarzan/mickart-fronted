@@ -1,5 +1,6 @@
 import React, { Fragment } from "react";
 
+import NotificationAlert from "react-notification-alert";
 // reactstrap components
 import {
   Button,
@@ -26,16 +27,22 @@ class NewSell extends React.Component {
       product_qtd: '',
       product_amount: '',
       product_color: '',
+      product_observation: '',
       products: [],
       clients: [],
       address: '',
-      sellProducts: []
+      sellProducts: [],
+      typePayments: [],
+      date_delivery: '',
+      type_payment_id: ''
     }
+    this.addSell = this.addSell.bind(this)
+    this.addProductToList = this.addProductToList.bind(this)
     this.getClients = this.getClients.bind(this)
     this.getClientAddress = this.getClientAddress.bind(this)
     this.getProducts = this.getProducts.bind(this)
+    this.getTypePayments = this.getTypePayments.bind(this)
     this.setClientId = this.setClientId.bind(this)
-    this.addProductToList = this.addProductToList.bind(this)
   }
 
   async getClients() {
@@ -70,11 +77,21 @@ class NewSell extends React.Component {
 
   async getClientAddress(clientId) {
     console.log('this.state.client_id', clientId)
-    const response = await fetch(`/address/${clientId}`)
+    const response = await fetch(`/addresses/${clientId}`)
     const result = await response.json()
     console.log('result Address = ', result)
     this.setState({
       address: { ...result.data[0] }
+    })
+  }
+
+  async getTypePayments() {
+    console.log('typePayments ')
+    const response = await fetch(`/type-payments`)
+    const result = await response.json()
+    console.log('result typePayments = ', result)
+    this.setState({
+      typePayments: result.data.map(item => ({ value: item.id, label: item.type }))
     })
   }
 
@@ -83,12 +100,15 @@ class NewSell extends React.Component {
     console.log('addProductToList', produtos)
 
     produtos.push({
-      name: this.state.product_id,
+      id: this.state.product_id.value,
+      name: this.state.product_id.label,
       color: this.state.product_color,
       qtd: this.state.product_qtd,
-      amount: this.state.product_amount
+      amount: this.state.product_amount,
+      observation: this.state.product_observation
     })
 
+    console.log('produtos ', produtos)
     this.setState({
       sellProducts: produtos
     }, () => {
@@ -96,20 +116,132 @@ class NewSell extends React.Component {
         product_id: '',
         product_qtd: '',
         product_amount: '',
-        product_color: ''
+        product_color: '',
+        product_observation: ''
       })
     })
+  }
+
+  async addSell() {
+    console.log('addSell ', this.state)
+    /*
+      client_id: '',
+      product_id: '',
+      product_qtd: '',
+      product_amount: '',
+      product_color: '',
+      product_observation: '',
+      products: [],
+      clients: [],
+      address: '',
+      sellProducts: []
+    */
+
+    /*
+      {
+        "sell": {
+          "amount": 0.00,
+          "user_id": 1,
+          "date_delivery": "2018-12-24"
+        },
+        "list": [
+          {
+            "qtd": 2,
+            "amount": 119.99,
+            "product_id": 1
+          }
+        ],
+        "payment": [
+          {
+            "type_payment_id": 1
+          }
+        ]
+      }
+    */
+    let { client_id, date_delivery, sellProducts, type_payment_id } = this.state
+    try {
+      const response = await fetch(`
+        /sells
+      `, {
+        method: 'POST',
+        body: JSON.stringify({
+          sell: {
+            amount: sellProducts.reduce((prev, curr) => (parseFloat(prev) + (parseFloat(curr.qtd) * parseFloat(curr.amount))), 0),
+            date_delivery,
+            user_id: client_id.value
+          },
+          list: [
+            ...sellProducts.map(item => ({
+              product_id: item.id,
+              qtd: item.qtd,
+              amount: item.amount,
+              color: item.color,
+              note: item.observation
+            }))
+          ],
+          payment: [
+            { type_payment_id: type_payment_id.value }
+          ]
+        }),
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      })
+      const body = await response.json();
+      console.log('body = ', body)
+      if (body.data) {
+        return this.successAlert('Venda cadastrada com sucesso!')
+      }
+      throw new Error()
+    } catch (error) {
+      console.log('error addUser ', error)
+      this.errorAlert('Não foi possível cadastrar a venda!')
+    }
   }
 
   componentWillMount() {
     this.getClients()
     this.getProducts()
+    this.getTypePayments()
+  }
+
+  errorAlert(text) {
+    this.refs.notificationAlert.notificationAlert({
+      place: "tc",
+      message: (
+        <div>
+          <div>
+            {text}
+          </div>
+        </div>
+      ),
+      type: "danger",
+      icon: "tim-icons icon-alert-circle-exc"
+    });
+  }
+
+  successAlert(text) {
+    this.refs.notificationAlert.notificationAlert({
+      place: 'tc',
+      message: (
+        <div>
+          <div>
+            {text}
+          </div>
+        </div>
+      ),
+      type: 'success',
+      icon: "tim-icons icon-check-2"
+    });
   }
 
   render() {
     return (
       <>
         <div className="content">
+          <div className="react-notification-alert-container">
+            <NotificationAlert ref="notificationAlert" />
+          </div>
           <Row>
             <Col md="8">
               <Card>
@@ -189,12 +321,12 @@ class NewSell extends React.Component {
                             />
                           </FormGroup>
                         </Col>
-                        <Col className="px-md-1" md="4">
+                        <Col className="pl-md-1" md="4">
                           <FormGroup>
                             <label>Número</label>
                             <Input
                               placeholder="Número"
-                            readOnly={true}
+                              readOnly={true}
                               type="text"
                               value={this.state.address.number}
                               // onChange={e => this.setState({ number: e.target.value })}
@@ -208,7 +340,7 @@ class NewSell extends React.Component {
                             <label>Complemento</label>
                             <Input
                               placeholder="Complemento"
-                            readOnly={true}
+                              readOnly={true}
                               type="text"
                               value={this.state.address.complement}
                               // onChange={e => this.setState({ complement: e.target.value })}
@@ -220,7 +352,7 @@ class NewSell extends React.Component {
                             <label>CEP</label>
                             <Input
                               placeholder="CEP"
-                            readOnly={true}
+                              readOnly={true}
                               type="number"
                               value={this.state.address.zipcode}
                               // onChange={e => this.setState({ zipcode: e.target.value })}
@@ -229,35 +361,60 @@ class NewSell extends React.Component {
                         </Col>
                       </Row>
                     </Fragment>}
-                    {this.state.client_id && <Row>
-                      <Col className="pr-md-1" md="8">
-                        <FormGroup>
-                          <label>Produto</label>
-                          <Select
-                            className="react-select primary"
-                            classNamePrefix="react-select"
-                            placeholder="Selecione o Produto"
-                            name="singleSelect"
-                            value={this.state.product_id}
-                            options={this.state.products}
-                            onChange={value =>
-                              this.setState({ product_id: value })
-                            }
-                          />
-                        </FormGroup>
-                      </Col>
-                      <Col className="pr-md-1" md="3">
-                        <FormGroup>
-                          <label>Cor</label>
-                          <Input
-                            placeholder="Cor"
-                            type="text"
-                            value={this.state.product_color}
-                            onChange={e => this.setState({ product_color: e.target.value })}
-                          />
-                        </FormGroup>
-                      </Col>
-                    </Row>}
+                    {this.state.client_id &&
+                      <Row>
+                        <Col className="pr-md-1" md="8">
+                          <FormGroup>
+                            <label>Produto</label>
+                            <Select
+                              className="react-select primary"
+                              classNamePrefix="react-select"
+                              placeholder="Selecione o Produto"
+                              name="singleSelect"
+                              value={this.state.product_id}
+                              options={this.state.products}
+                              onChange={value =>
+                                this.setState({ product_id: value })
+                              }
+                            />
+                          </FormGroup>
+                        </Col>
+                      </Row>}
+                      {this.state.product_id && <Row>
+                        <Col className="pr-md-1" md="2">
+                          <FormGroup>
+                            <label>Valor</label>
+                            <Input
+                              placeholder="Valor"
+                              type="text"
+                              value={this.state.product_amount}
+                              onChange={e => this.setState({ product_amount: e.target.value })}
+                            />
+                          </FormGroup>
+                        </Col>
+                        <Col className="pr-md-1" md="2">
+                          <FormGroup>
+                            <label>Quantidade</label>
+                            <Input
+                              placeholder="Valor"
+                              type="text"
+                              value={this.state.product_qtd}
+                              onChange={e => this.setState({ product_qtd: e.target.value })}
+                            />
+                          </FormGroup>
+                        </Col>
+                        <Col className="pr-md-1" md="4">
+                          <FormGroup>
+                            <label>Cor</label>
+                            <Input
+                              placeholder="Cor"
+                              type="text"
+                              value={this.state.product_color}
+                              onChange={e => this.setState({ product_color: e.target.value })}
+                            />
+                          </FormGroup>
+                        </Col>
+                      </Row>}
                     {this.state.product_id && <Row>
                       <Col md="8">
                         <FormGroup>
@@ -266,8 +423,8 @@ class NewSell extends React.Component {
                             cols="80"
                             placeholder="Adicione aqui a observação"
                             type="textarea"
-                            value={this.state.comment}
-                            onChange={e => this.setState({ comment: e.target.value })}
+                            value={this.state.product_observation}
+                            onChange={e => this.setState({ product_observation: e.target.value })}
                           />
                         </FormGroup>
                         <Button onClick={e => this.addProductToList()}>
@@ -275,34 +432,64 @@ class NewSell extends React.Component {
                         </Button>
                       </Col>
                     </Row>}
-                    {this.state.sellProducts.length && <Table><thead className="text-primary">
-                      <tr>
-                        <th>Descrição</th>
-                        <th>Cor</th>
-                        <th>Quantidade</th>
-                        <th>Valor</th>
-                        <th>Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {this.state.sellProducts.map((item, index) => <tr key={index}>
-                        <td>{item.name}</td>
-                        <td>{item.color}</td>
-                        <td>{item.qtd}</td>
-                        <td>{item.amount}</td>
-                        <td>{item.qtd * item.amount}</td>
-                      </tr>)}
-                    </tbody>
-                    </Table>}
+                    {this.state.sellProducts.length ? <Table>
+                      <thead className="text-primary">
+                        <tr>
+                          <th>Descrição</th>
+                          <th>Cor</th>
+                          <th>Observações</th>
+                          <th>Quantidade</th>
+                          <th>Valor</th>
+                          <th>Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {this.state.sellProducts.map((item, index) => <tr key={index}>
+                          <td>{item.name}</td>
+                          <td>{item.color}</td>
+                          <td>{item.observation}</td>
+                          <td>{item.qtd}</td>
+                          <td>{item.amount}</td>
+                          <td>{item.qtd * item.amount}</td>
+                        </tr>)}
+                      </tbody>
+                    </Table> : ''}
+                    {this.state.sellProducts.length ? <Row>
+                      <Col className="pr-md-1" md="8">
+                        <FormGroup>
+                          <label>Forma de Pagamento</label>
+                          <Select
+                            className="react-select primary"
+                            classNamePrefix="react-select"
+                            placeholder="Selecione o Tipo de Pagamento"
+                            name="typePaymentsSelect"
+                            value={this.state.type_payment_id}
+                            options={this.state.typePayments}
+                            onChange={value => this.setState({ type_payment_id: value })}
+                          />
+                        </FormGroup>
+                      </Col>
+                      <Col className="pl-md-1" md="4">
+                        <FormGroup>
+                          <label>Data Entrega</label>
+                          <Input
+                            placeholder="Data Entrega"
+                            type="text"
+                            value={this.state.date_delivery}
+                            onChange={e => this.setState({ date_delivery: e.target.value })}
+                          />
+                        </FormGroup>
+                      </Col>
+                    </Row> : ''}
                   </Form>
                 </CardBody>
                 <CardFooter>
                   <Button
-                    disabled={!this.state.product_id}
+                    disabled={!this.state.date_delivery}
                     className="btn-fill"
                     color="primary"
-                    type="submit">
-                    Save
+                    onClick={e => this.addSell()}>
+                    Salvar
                   </Button>
                 </CardFooter>
               </Card>
