@@ -1,7 +1,8 @@
 import Dashboard from "views/Dashboard.jsx";
-import NewSell from "views/NewSell.jsx";
+import SellNew from "views/SellNew.jsx";
 import NewClient from "views/NewUser.jsx";
 import Sells from "views/Sells.jsx";
+import SellEdit from "views/SellEdit.jsx";
 
 import DashboardOld from "views/DashboardOld.jsx";
 import Icons from "views/Icons.jsx";
@@ -16,7 +17,6 @@ var routes = [
   {
     path: "/dashboard-old",
     name: "DashboardOld",
-    rtlName: "لوحة القيادة",
     icon: "tim-icons icon-chart-pie-36",
     component: DashboardOld,
     layout: "/admin"
@@ -24,7 +24,6 @@ var routes = [
   {
     path: "/dashboard",
     name: "Dashboard",
-    rtlName: "لوحة القيادة",
     icon: "tim-icons icon-chart-pie-36",
     component: Dashboard,
     layout: "/admin"
@@ -32,7 +31,6 @@ var routes = [
   {
     path: "/new-client",
     name: "Novo Cliente",
-    rtlName: "لوحة القيادة",
     component: NewClient,
     icon: "tim-icons icon-single-02",
     layout: "/admin"
@@ -40,23 +38,27 @@ var routes = [
   {
     path: "/new-sell",
     name: "Nova Venda",
-    rtlName: "لوحة القيادة",
     icon: "tim-icons icon-notes",
-    component: NewSell,
+    component: SellNew,
     layout: "/admin"
   },
   {
     path: "/sells",
     name: "Vendas",
-    rtlName: "لوحة القيادة",
     icon: "tim-icons icon-paper",
     component: Sells,
     layout: "/admin"
   },
   {
+    path: "/sell/:id",
+    name: "Editar venda",
+    icon: "tim-icons icon-paper",
+    component: SellEdit,
+    layout: "/admin"
+  },
+  {
     path: "/icons",
     name: "Icons",
-    rtlName: "الرموز",
     icon: "tim-icons icon-atom",
     component: Icons,
     layout: "/admin"
@@ -64,7 +66,6 @@ var routes = [
   {
     path: "/map",
     name: "Map",
-    rtlName: "خرائط",
     icon: "tim-icons icon-pin",
     component: Map,
     layout: "/admin"
@@ -72,7 +73,6 @@ var routes = [
   {
     path: "/notifications",
     name: "Notifications",
-    rtlName: "إخطارات",
     icon: "tim-icons icon-bell-55",
     component: Notifications,
     layout: "/admin"
@@ -80,7 +80,6 @@ var routes = [
   {
     path: "/user-profile",
     name: "User Profile",
-    rtlName: "ملف تعريفي للمستخدم",
     icon: "tim-icons icon-single-02",
     component: UserProfile,
     layout: "/admin"
@@ -88,7 +87,6 @@ var routes = [
   {
     path: "/tables",
     name: "Table List",
-    rtlName: "قائمة الجدول",
     icon: "tim-icons icon-puzzle-10",
     component: TableList,
     layout: "/admin"
@@ -96,7 +94,6 @@ var routes = [
   {
     path: "/typography",
     name: "Typography",
-    rtlName: "طباعة",
     icon: "tim-icons icon-align-center",
     component: Typography,
     layout: "/admin"
@@ -104,7 +101,6 @@ var routes = [
   {
     path: "/rtl-support",
     name: "RTL Support",
-    rtlName: "ار تي ال",
     icon: "tim-icons icon-world",
     component: Rtl,
     layout: "/rtl"
