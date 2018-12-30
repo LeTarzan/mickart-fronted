@@ -1,7 +1,9 @@
 import React from "react";
 import { format } from 'date-fns';
+import { withRouter } from 'react-router-dom';
 
 import {
+  Button,
   Card,
   CardHeader,
   CardBody,
@@ -18,6 +20,8 @@ class Tables extends React.Component {
       sells: []
     }
     this.getSells = this.getSells.bind(this)
+    this.goToDetail = this.goToDetail.bind(this)
+    console.log('props ', props)
   }
 
   componentWillMount() {
@@ -33,6 +37,11 @@ class Tables extends React.Component {
     })
   }
 
+  goToDetail(id) {
+    console.log('goToDetail', id)
+    this.props.history.push(`/admin/sell/${id}`)
+  }
+
   render() {
     return (
       <>
@@ -44,18 +53,6 @@ class Tables extends React.Component {
                   <CardTitle tag="h4">Vendas ativas</CardTitle>
                 </CardHeader>
                 <CardBody>
-                  {/*
-                    {
-                      "id": 1,
-                      "amount": "99.99",
-                      "date_delivery": "2018-12-26T03:00:00.000Z",
-                      "created_at": "2018-12-25T05:09:06.336Z",
-                      "updated_at": "2018-12-25T05:09:06.336Z",
-                      "user_id": 1,
-                      "status": true,
-                      "deactivated_at": null
-                    }
-                  */}
                   <Table className="tablesorter" responsive>
                     <thead className="text-primary">
                       <tr>
@@ -65,6 +62,7 @@ class Tables extends React.Component {
                         <th>Data de Entrega</th>
                         <th>Última atualização</th>
                         <th>Valor</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -76,6 +74,16 @@ class Tables extends React.Component {
                           <td>{format(item.date_delivery, 'DD/MM/YYYY HH:mm')}</td>
                           <td>{format(item.updated_at, 'DD/MM/YYYY HH:mm')}</td>
                           <td>{item.amount}</td>
+                          <td className="td-actions">
+                            <Button
+                              color="link"
+                              id="tooltip457194718"
+                              title=""
+                              type="button"
+                              onClick={e => this.goToDetail(item.id)}
+                            >
+                              <i className="tim-icons icon-pencil" />
+                            </Button></td>
                         </tr>)
                       }
                     </tbody>
@@ -90,4 +98,4 @@ class Tables extends React.Component {
   }
 }
 
-export default Tables;
+export default withRouter(Tables);
