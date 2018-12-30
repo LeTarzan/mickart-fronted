@@ -1,6 +1,7 @@
 import Dashboard from "views/Dashboard.jsx";
 import NewSell from "views/NewSell.jsx";
 import NewClient from "views/NewUser.jsx";
+import NewProduct from "views/NewProduct.jsx"
 import Sells from "views/Sells.jsx";
 
 import DashboardOld from "views/DashboardOld.jsx";
@@ -34,6 +35,14 @@ var routes = [
     name: "Novo Cliente",
     rtlName: "لوحة القيادة",
     component: NewClient,
+    icon: "tim-icons icon-single-02",
+    layout: "/admin"
+  },
+  {
+    path: "/new-product",
+    name: "Novo Produto",
+    rtlName: "لوحة القيادة",
+    component: NewProduct,
     icon: "tim-icons icon-single-02",
     layout: "/admin"
   },
