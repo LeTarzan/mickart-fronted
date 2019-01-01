@@ -37,10 +37,8 @@ class Login extends React.Component {
     `, {
           method: 'POST',
           body: JSON.stringify({
-            user: {
-              password,
-              username
-            }
+            password,
+            username
           }),
           headers: {
             'Content-Type': 'application/json'
