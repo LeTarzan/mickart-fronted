@@ -13,6 +13,7 @@ import Rtl from "views/Rtl.jsx";
 import TableList from "views/TableList.jsx";
 import Typography from "views/Typography.jsx";
 import UserProfile from "views/UserProfile.jsx";
+import Login from "./views/Login";
 
 var routes = [
   {
@@ -41,6 +42,14 @@ var routes = [
     name: "Novo Produto",
     rtlName: "لوحة القيادة",
     component: NewProduct,
+    icon: "tim-icons icon-single-02",
+    layout: "/admin"
+  },
+  {
+    path: "/login",
+    name: "Login",
+    rtlName: "لوحة القيادة",
+    component: Login,
     icon: "tim-icons icon-single-02",
     layout: "/admin"
   },
