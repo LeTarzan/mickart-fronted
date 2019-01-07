@@ -46,8 +46,12 @@ class Login extends React.Component {
         })
       const body = await response.json();
       console.log('body = ', body)
-      if (body.data) {
-        return this.props.history.push('/dashboard')
+      if (body.msg) {
+        localStorage.setItem('token', body.token);
+        if (body.rid === 2) {
+          return this.props.history.push('/user/dashboard')
+        }
+        return this.props.history.push('/admin/dashboard')
       }
       throw new Error()
     } catch (error) {
@@ -73,25 +77,29 @@ class Login extends React.Component {
 
   render() {
     return (
-      <div className="content">
+      // eslint-disable-next-line react/style-prop-object
+      <div style={{ textAlign: 'center' }} className="content centralize">
         <div className="react-notification-alert-container">
-            <NotificationAlert ref="notificationAlert" />
+          <NotificationAlert ref="notificationAlert" />
         </div>
         <Row>
-          <Col md="12">
+          <Col sm="12" md={{ size: 5, offset: 2 }}>
             <Card>
               <CardHeader>
-                <CardTitle tag="h4">Login</CardTitle>
+                <CardTitle tag="h4"></CardTitle>
               </CardHeader>
               <CardBody>
                 <Form>
-                  <Row>
+                  <Row style={{ justifyContent: "center" }}>
                     <Col className="pr-md-1" md="3">
                       <FormGroup>
                         <label>Usuário</label>
                         <Input
                           placerholder="username"
                           type="text"
+                          position="absolute"
+                          top="20px"
+                          left="50px"
                           value={this.state.username}
                           onChange={e => this.setState({ username: e.target.value })}
                         />
@@ -108,10 +116,10 @@ class Login extends React.Component {
                 </Form>
               </CardBody>
               <CardFooter>
-                  <Button onClick={this.login} className="btn-fill" color="primary" type="submit">
-                    Entrar
+                <Button onClick={this.login} className="btn-fill" color="primary" type="submit">
+                  Entrar
                   </Button>
-                </CardFooter>
+              </CardFooter>
             </Card>
           </Col>
         </Row>

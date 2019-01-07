@@ -13,7 +13,8 @@ import Rtl from "views/Rtl.jsx";
 import TableList from "views/TableList.jsx";
 import Typography from "views/Typography.jsx";
 import UserProfile from "views/UserProfile.jsx";
-import Login from "./views/Login";
+import Login from "views/Login.jsx";
+import DashboardUser from "views/DashboardUser.jsx"
 
 var routes = [
   {
@@ -51,7 +52,15 @@ var routes = [
     rtlName: "لوحة القيادة",
     component: Login,
     icon: "tim-icons icon-single-02",
-    layout: "/admin"
+    layout: "/user"
+  },
+  {
+    path: "/dashboard-user",
+    name: "DashboardUser",
+    rtlName: "لوحة القيادة",
+    component: DashboardUser,
+    icon: "tim-icons icon-single-02",
+    layout: "/user"
   },
   {
     path: "/new-sell",
