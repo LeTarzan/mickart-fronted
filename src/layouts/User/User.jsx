@@ -19,6 +19,8 @@ class User extends React.Component {
     super(props);
     this.state = {
       backgroundColor: "primary",
+      routes: routes,
+      routesFiltered: [],
       sidebarOpened:
         document.documentElement.className.indexOf("nav-open") !== -1
     };
@@ -26,7 +28,7 @@ class User extends React.Component {
   async verifyToken() {
     try {
       const token = localStorage.getItem('token')
-      if(!token){
+      if (!token) {
         return this.props.history.push('/user/login')
       }
       const response = await fetch(`
@@ -42,14 +44,14 @@ class User extends React.Component {
         })
       const body = await response.json();
       console.log('body = ', body)
-      if (!body.result){
+      if (!body.result) {
         return this.props.history.push('/user/login')
       }
     } catch (error) {
       console.log('error token ', error)
     }
   }
-  getUserBar() {
+  getUserNavBar() {
     if (this.props.location.pathname !== '/user/login') {
       return <AdminNavbar
         {...this.props}
@@ -58,6 +60,18 @@ class User extends React.Component {
       />
     }
   };
+  componentWillMount() {
+     let novasRotas = this.state.routes.map((rota, index) => {
+      if (rota.layout === "/user") {
+        return rota
+      }
+      return null
+    })
+    console.log('novasRotas = ', novasRotas) // <- me manda o print disso
+    this.setState({
+      routesFiltered: novasRotas.filter(rt => rt)
+    })
+  }
   componentDidMount() {
     this.verifyToken()
     if (navigator.platform.indexOf("Win") > -1) {
@@ -70,21 +84,16 @@ class User extends React.Component {
       }
     }
   }
-  getRoutes = routes => {
-    return routes.map((prop, key) => {
-      if (prop.layout === "/user") {
-        return (
-          <Route
-            path={prop.layout + prop.path}
-            component={prop.component}
-            key={key}
-          />
-        );
-      } else {
-        return null;
-      }
-    });
-  };
+  getRoutes = _ => {
+    return this.state.routesFiltered.map((prop, key) => (
+      <Route
+        path={prop.layout + prop.path}
+        component={prop.component}
+        key={key}
+      />
+    ))
+  }
+
   getBrandText = path => {
     for (let i = 0; i < routes.length; i++) {
       if (
@@ -98,7 +107,7 @@ class User extends React.Component {
     return "Brand";
   };
 
-  getNavBar() {
+  getUserSidebar() {
     if (this.props.location.pathname !== '/user/login') {
       return <Sidebar
         {...this.props}
@@ -123,12 +132,13 @@ class User extends React.Component {
             ref="mainPanel"
             data={this.state.backgroundColor}
           >
-            {this.getNavBar()}
-            {this.getUserBar()}
+            {console.log('roots ..', this.state.routes)}
+            {this.getUserSidebar()}
+            {this.getUserNavBar()}
             <div style={{ textAlign: 'center' }}>
               <h4>{this.getBrandText(this.props.location.pathname)}</h4>
             </div>
-            <Switch>{this.getRoutes(routes)}</Switch>
+            <Switch>{this.getRoutes()}</Switch>
             { // we don't want the Footer to be rendered on map page
               this.props.location.pathname.indexOf("maps") !== -1 ? null : (
                 <Footer fluid />
