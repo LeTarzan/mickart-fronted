@@ -111,7 +111,7 @@ class User extends React.Component {
     if (this.props.location.pathname !== '/user/login') {
       return <Sidebar
         {...this.props}
-        routes={routes}
+        routes={this.state.routesFiltered}
         bgColor={this.state.backgroundColor}
         logo={{
           outterLink: "https://www.creative-tim.com/",
@@ -132,7 +132,7 @@ class User extends React.Component {
             ref="mainPanel"
             data={this.state.backgroundColor}
           >
-            {console.log('roots ..', this.state.routes)}
+            {console.log('roots ..', this.state.routesFiltered)}
             {this.getUserSidebar()}
             {this.getUserNavBar()}
             <div style={{ textAlign: 'center' }}>
