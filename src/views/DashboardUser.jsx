@@ -28,7 +28,13 @@ class Dashboard extends React.Component {
     tokenobj.token = token
     const response = await fetch(`
       /sells
-    `, tokenobj);
+    `, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            authorization: token
+          }
+        });
     const body = await response.json();
 
     if (response.status !== 200) throw Error(body.message);
