@@ -67,7 +67,7 @@ class User extends React.Component {
       }
       return null
     })
-    console.log('novasRotas = ', novasRotas) // <- me manda o print disso
+    // console.log('novasRotas = ', novasRotas)
     this.setState({
       routesFiltered: novasRotas.filter(rt => rt)
     })
@@ -132,7 +132,7 @@ class User extends React.Component {
             ref="mainPanel"
             data={this.state.backgroundColor}
           >
-            {console.log('roots ..', this.state.routesFiltered)}
+            {/* {console.log('roots ..', this.state.routesFiltered)} */}
             {this.getUserSidebar()}
             {this.getUserNavBar()}
             <div style={{ textAlign: 'center' }}>

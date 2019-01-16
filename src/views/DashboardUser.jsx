@@ -23,9 +23,12 @@ class Dashboard extends React.Component {
   }
 
   async getSellsFromAPI() {
+    let token = localStorage.getItem('token')
+    const tokenobj = {}
+    tokenobj.token = token
     const response = await fetch(`
       /sells
-    `);
+    `, tokenobj);
     const body = await response.json();
 
     if (response.status !== 200) throw Error(body.message);
@@ -46,10 +49,7 @@ class Dashboard extends React.Component {
           <Col md="12">
             <Card>
               <CardHeader>
-                <CardTitle tag="h4">Vendas</CardTitle>
-                <Button className="btn-fill" color="primary" type="submit">
-                  Nova venda
-                </Button>
+                <CardTitle tag="h4">Compras</CardTitle>
               </CardHeader>
               <CardBody>
                 <Table className="tablesorter" responsive>
