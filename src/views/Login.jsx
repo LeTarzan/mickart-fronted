@@ -49,7 +49,7 @@ class Login extends React.Component {
       if (body.msg) {
         localStorage.setItem('token', body.token);
         if (body.rid === 2) {
-          return this.props.history.push('/user/dashb oard')
+          return this.props.history.push('/user/dashboard')
         }
         return this.props.history.push('/admin/dashboard')
       }

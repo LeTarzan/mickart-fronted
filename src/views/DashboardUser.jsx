@@ -24,8 +24,6 @@ class Dashboard extends React.Component {
 
   async getSellsFromAPI() {
     let token = localStorage.getItem('token')
-    const tokenobj = {}
-    tokenobj.token = token
     const response = await fetch(`
       /sells
     `, {
@@ -61,22 +59,25 @@ class Dashboard extends React.Component {
                 <Table className="tablesorter" responsive>
                   <thead className="text-primary">
                     <tr>
-                      <th className="text-center">Cliente</th>
+                      <th className="text-center">Produto</th>
+                      <th className="text-center">Quantidade</th>
                       <th className="text-center">Valor</th>
-                      <th className="text-center">Data da Venda</th>
+                      <th className="text-center">Forma de pagamento</th>
+                      <th className="text-center">Data da Compra</th>
                       <th className="text-center">Data da Entrega</th>
-                      <th className="text-center">Atualização</th>
                       <th className="text-center">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {this.state.sells.map((item, index) => (
                       <tr key={index}>
-                        <td className="text-center">{item.user_id}</td>
+                        <td className="text-center">{item.name}</td>
+                        <td className="text-center">{item.qtd}</td>
+                        {console.log('item.. ', item)}
                         <td className="text-center">{item.amount}</td>
+                        <td className="text-center">{item.type}</td>
                         <td className="text-center">{format(item.created_at, 'DD/MM/YYYY HH:mm')}</td>
-                        <td className="text-center">{format(item.date_delivery, 'DD/MM/YYYY HH:mm')}</td>
-                        <td className="text-center">{format(item.updated_at, 'DD/MM/YYYY HH:mm')}</td>
+                        <td className="text-center">{item.status ? format(item.date_delivery, 'DD/MM/YYYY HH:mm') : '..'}</td>
                         <td className="text-center">{item.status ? 'Ativo' : 'Cancelado'}</td>
                       </tr>
                     ))}

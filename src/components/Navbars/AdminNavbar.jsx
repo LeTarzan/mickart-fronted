@@ -19,6 +19,7 @@ import {
   Container,
   Modal
 } from "reactstrap";
+import { longStackSupport } from "q";
 
 class AdminNavbar extends React.Component {
   constructor(props) {
@@ -68,6 +69,12 @@ class AdminNavbar extends React.Component {
       modalSearch: !this.state.modalSearch
     });
   };
+
+  logOut(){
+    localStorage.removeItem('token')
+    return this.props.history.push('/login')
+  }
+
   render() {
     return (
       <>
@@ -179,14 +186,14 @@ class AdminNavbar extends React.Component {
                   </DropdownToggle>
                   <DropdownMenu className="dropdown-navbar" right tag="ul">
                     <NavLink tag="li">
-                      <DropdownItem className="nav-item">Profile</DropdownItem>
+                      <DropdownItem className="nav-item" onClick={e => this.props.history.push('/user/user-profile')}>Profile</DropdownItem>
                     </NavLink>
                     <NavLink tag="li">
                       <DropdownItem className="nav-item">Settings</DropdownItem>
                     </NavLink>
-                    <DropdownItem divider tag="li" />
+                    <DropdownItem divider tag="li"/>
                     <NavLink tag="li">
-                      <DropdownItem className="nav-item">Log out</DropdownItem>
+                      <DropdownItem className="nav-item" onClick={e => this.logOut()}>Log out</DropdownItem>
                     </NavLink>
                   </DropdownMenu>
                 </UncontrolledDropdown>

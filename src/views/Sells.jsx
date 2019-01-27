@@ -29,7 +29,18 @@ class Tables extends React.Component {
   }
 
   async getSells() {
-    const response = await fetch(`/sells`)
+    let token = localStorage.getItem('token')
+    const tokenobj = {}
+    tokenobj.token = token
+    const response = await fetch(`
+      /sells
+    `, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            authorization: token
+          }
+        });
     const result = await response.json()
     console.log('result Sells = ', result)
     this.setState({
