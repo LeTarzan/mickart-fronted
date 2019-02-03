@@ -33,6 +33,11 @@ class Dashboard extends React.Component {
             authorization: token
           }
         });
+
+    console.log('response', response)
+    if(response.status === 401) {
+      return this.props.history.push('/user/login')
+    }
     const body = await response.json();
 
     if (response.status !== 200) throw Error(body.message);

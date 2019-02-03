@@ -23,6 +23,7 @@ class UserProfile extends React.Component {
       id: '',
       name: '',
       lastname: '',
+      username: '',
       address: '',
       district: '',
       city: '',
@@ -51,42 +52,49 @@ class UserProfile extends React.Component {
       id: body.data[0].id,
       name: body.data[0].name,
       lastname: body.data[0].lastname,
+      username: body.data[0].username,
       address: body.data[0].address,
       district: body.data[0].district,
       city: body.data[0].city,
       number: body.data[0].number,
       complement: body.data[0].complement,
       zipcode: body.data[0].zipcode,
-      addressId: body.data[0].a_id
+      addressId: body.data[0].a_id,
+      currentPassword: '',
+      newPassword: ''
     }, () => console.log('this.state', this.state))
   }
 
   async validateUser() {
     try {
-      if (this.state.name || this.state.name.length > 3) {
-        if (this.state.lastname || this.state.name.length > 4) {
-          if (this.state.username || this.state.name.length > 6) {
-            if (this.state.address || this.state.name.length > 4) {
-              if (this.state.district || this.state.name.length > 5) {
-                if (this.state.city || this.state.name.length > 3) {
-                  if (this.state.number || Number.isInteger(this.state.name.length)) {
-                    if (this.state.zipcode || Number.isInteger(this.state.name.length)) {
-                      return { result: true }
-                    }
-                    return { msg: 'Número inválido', result: false }
-                  }
-                  return { msg: 'Cidade inválida', result: false }
-                }
-                return { msg: 'Bairro inválido', result: false }
-              }
-              return { msg: 'Rua inválida', result: false }
-            }
-            return { msg: 'Nome de usuário inválido', result: false }
-          }
-          return { msg: 'Sobrenome inválido', result: false }
-        }
-        return { msg: 'Nome inválido', result: false }
+      if (!this.state.lastname || this.state.name.length < 4) {
+        return { msg: 'Sobrenome inválido', result: false }
       }
+      if (!this.state.username || this.state.name.length < 6) {
+        return { msg: 'Nome de usuário inválido', result: false }
+      }
+      if (this.state.currentPassword && this.state.currentPassword.length < 8 ) {
+        if(!this.state.newPassword || this.state.newPassword.length < 8 ){
+          return { msg: 'Senha atual inválida', result: false }
+        }
+        return { msg: 'Nova senha inválida', result: false }
+      }
+      if (!this.state.address || this.state.name.length < 4) {
+        return { msg: 'Rua inválida', result: false }
+      }
+      if (!this.state.district || this.state.name.length < 5) {
+        return { msg: 'Cidade inválida', result: false }
+      }
+      if (!this.state.city || this.state.name.length < 3) {
+        return { msg: 'Bairro inválido', result: false }
+      }
+      if (!this.state.number || !Number.isInteger(this.state.number)) {
+        return { msg: 'Número inválido', result: false }
+      }
+      if (!this.state.zipcode || !Number.isInteger(this.state.zipcode)) {
+        return { msg: 'CEP inválido', result: false }
+      }
+      return { result: true }
     } catch (error) {
       console.log('error validate..', error)
     }
@@ -95,6 +103,7 @@ class UserProfile extends React.Component {
   async save() {
     try {
       let rs = await this.validateUser()
+      console.log('rs ',rs)
       if (!rs.result) {
         return this.errorAlert(rs.msg)
       }
@@ -102,7 +111,17 @@ class UserProfile extends React.Component {
       let data = {}
       data.user = {}
       data.address = {}
-      data.user = { id: this.state.id, lastname: this.state.lastname, name: this.state.name }
+      data.password = {}
+      data.user = {
+        id: this.state.id,
+        lastname: this.state.lastname,
+        name: this.state.name,
+      }
+      data.password = {
+        id: this.state.id,
+        currentPassword: this.state.currentPassword,
+        newPassword: this.state.newPassword
+      }
       data.address = {
         id: this.state.addressId,
         address: this.state.address,
@@ -113,6 +132,7 @@ class UserProfile extends React.Component {
         district: this.state.district,
         user_id: this.state.id
       }
+      console.log('data..', data)
       const response = await fetch('/users/', {
         method: 'PUT',
         body: JSON.stringify(data),
@@ -181,7 +201,7 @@ class UserProfile extends React.Component {
                 <CardBody>
                   <Form>
                     <Row>
-                      <Col className="pr-md-1" md="5">
+                      <Col className="pr-md-1" md="6">
                         <FormGroup>
                           <label>Nome</label>
                           <Input
@@ -192,7 +212,7 @@ class UserProfile extends React.Component {
                           />
                         </FormGroup>
                       </Col>
-                      <Col className="px-md-1" md="3">
+                      <Col className="pl-md-1" md="6">
                         <FormGroup>
                           <label>Sobrenome</label>
                           <Input
@@ -203,13 +223,33 @@ class UserProfile extends React.Component {
                           />
                         </FormGroup>
                       </Col>
-                      <Col className="pl-md-1" md="4">
+                    </Row>
+                    <Row>
+                      <Col className="pr-md-1" md="4">
                         <FormGroup>
                           <label >Nome de usuário</label>
                           <Input
                             defaultValue={this.state.username}
                             disabled
                             placeholder="Usuário"
+                            type="text" />
+                        </FormGroup>
+                      </Col>
+                      <Col className="pr-md-1" md="4">
+                        <FormGroup>
+                          <label >Senha atual</label>
+                          <Input
+                            placeholder="Senha"
+                            onChange={e => this.setState({ currentPassword: e.target.value })}
+                            type="text" />
+                        </FormGroup>
+                      </Col>
+                      <Col className="pl-md-1" md="4">
+                        <FormGroup>
+                          <label >Nova senha</label>
+                          <Input
+                            placeholder="Nova senha"
+                            onChange={e => this.setState({ newPassword: e.target.value })}
                             type="text" />
                         </FormGroup>
                       </Col>

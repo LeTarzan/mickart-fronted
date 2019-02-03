@@ -33,9 +33,12 @@ class Dashboard extends React.Component {
             authorization: token
           }
         });
-    const body = await response.json();
 
-    if (response.status !== 200) throw Error(body.message);
+    if(response.status !== 200){
+      return this.props.history.push('/user/login')
+    }
+
+    const body = await response.json();
 
     this.setState({
       sells: body.data
@@ -69,11 +72,11 @@ class Dashboard extends React.Component {
                     </tr>
                   </thead>
                   <tbody>
+                    {console.log('vendas', this.state.sells)}
                     {this.state.sells.map((item, index) => (
                       <tr key={index}>
                         <td className="text-center">{item.name}</td>
                         <td className="text-center">{item.qtd}</td>
-                        {console.log('item.. ', item)}
                         <td className="text-center">{item.amount}</td>
                         <td className="text-center">{item.type}</td>
                         <td className="text-center">{format(item.created_at, 'DD/MM/YYYY HH:mm')}</td>

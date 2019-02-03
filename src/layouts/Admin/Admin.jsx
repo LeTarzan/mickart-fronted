@@ -24,7 +24,34 @@ class Admin extends React.Component {
         document.documentElement.className.indexOf("nav-open") !== -1
     };
   }
+  async verifyToken() {
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        return this.props.history.push('/user/login')
+      }
+      const response = await fetch(`
+      http://localhost:3000/token/verify-token
+    `, {
+          method: 'POST',
+          body: JSON.stringify({
+            token
+          }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+      const body = await response.json();
+      console.log('body = ', body)
+      if (!body.result) {
+        return this.props.history.push('/user/login')
+      }
+    } catch (error) {
+      console.log('error token ', error)
+    }
+  }
   componentDidMount() {
+    this.verifyToken()
     if (navigator.platform.indexOf("Win") > -1) {
       document.documentElement.className += " perfect-scrollbar-on";
       document.documentElement.classList.remove("perfect-scrollbar-off");

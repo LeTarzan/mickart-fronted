@@ -15,6 +15,7 @@ import Typography from "views/Typography.jsx";
 import UserProfile from "views/UserProfile.jsx";
 import Login from "views/Login.jsx";
 import DashboardUser from "views/DashboardUser.jsx"
+import LostPassword from "./views/LostPassword";
 
 var routes = [
   {
@@ -51,6 +52,13 @@ var routes = [
     name: "Login",
     rtlName: "لوحة القيادة",
     component: Login,
+    icon: "tim-icons icon-single-02",
+    layout: "/user"
+  },
+  {
+    path: "/esqueci-senha",
+    name: "Esqueci minha senha",
+    component: LostPassword,
     icon: "tim-icons icon-single-02",
     layout: "/user"
   },

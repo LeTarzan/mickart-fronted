@@ -27,32 +27,35 @@ class User extends React.Component {
   }
   async verifyToken() {
     try {
-      const token = localStorage.getItem('token')
-      if (!token) {
-        return this.props.history.push('/user/login')
-      }
-      const response = await fetch(`
+      if (this.props.location.pathname !== '/user/esqueci-senha') {
+        const token = localStorage.getItem('token')
+        if (!token) {
+          return this.props.history.push('/user/login')
+        }
+        const response = await fetch(`
       http://localhost:3000/token/verify-token
     `, {
-          method: 'POST',
-          body: JSON.stringify({
-            token
-          }),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-      const body = await response.json();
-      console.log('body = ', body)
-      if (!body.result) {
-        return this.props.history.push('/user/login')
+            method: 'POST',
+            body: JSON.stringify({
+              token
+            }),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+        const body = await response.json();
+        console.log('body = ', body)
+        if (!body.result) {
+          return this.props.history.push('/user/login')
+        }
       }
     } catch (error) {
       console.log('error token ', error)
     }
+
   }
   getUserNavBar() {
-    if (this.props.location.pathname !== '/user/login') {
+    if (this.props.location.pathname !== '/user/login'   && this.props.location.pathname !== '/user/esqueci-senha') {
       return <AdminNavbar
         {...this.props}
         toggleSidebar={this.toggleSidebar}
@@ -61,7 +64,7 @@ class User extends React.Component {
     }
   };
   componentWillMount() {
-     let novasRotas = this.state.routes.map((rota, index) => {
+    let novasRotas = this.state.routes.map((rota, index) => {
       if (rota.layout === "/user") {
         return rota
       }
@@ -108,10 +111,15 @@ class User extends React.Component {
   };
 
   getUserSidebar() {
-    if (this.props.location.pathname !== '/user/login') {
+    if (this.props.location.pathname !== '/user/login' && this.props.location.pathname !== '/user/esqueci-senha') {
       return <Sidebar
         {...this.props}
-        routes={this.state.routesFiltered}
+        routes={this.state.routesFiltered.filter(rota => {
+          if ((rota.path === '/login') || (rota.path === '/user-profile') || (rota.path === '/esqueci-senha')) {
+            return null
+          }
+          return rota
+        })}
         bgColor={this.state.backgroundColor}
         logo={{
           outterLink: "https://www.creative-tim.com/",
