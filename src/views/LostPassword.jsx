@@ -18,7 +18,7 @@ import {
   CardTitle
 } from "reactstrap";
 
-class Login extends React.Component {
+class RestorePassword extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -50,7 +50,6 @@ class Login extends React.Component {
       throw new Error()
     } catch (error) {
       console.log('error login ', error)
-      return this.errorAlert('Usuário ou senha incorreto!')
     }
   }
 
@@ -129,4 +128,4 @@ class Login extends React.Component {
     )
   }
 }
-export default withRouter(Login)
+export default withRouter(RestorePassword)
