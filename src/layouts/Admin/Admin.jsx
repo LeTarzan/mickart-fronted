@@ -48,7 +48,7 @@ class Admin extends React.Component {
       if (!body.rs) {
         return this.props.history.push('/user/login')
       }
-      if (body.roleid !== 1) {
+      if (body.rs.roleid !== 1) {
         return this.props.history.push('/user/login')
       }
     } catch (error) {
