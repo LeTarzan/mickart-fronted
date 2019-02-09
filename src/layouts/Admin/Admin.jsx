@@ -20,6 +20,8 @@ class Admin extends React.Component {
     super(props);
     this.state = {
       backgroundColor: "primary",
+      routes: routes,
+      routesFiltered: [],
       sidebarOpened:
         document.documentElement.className.indexOf("nav-open") !== -1
     };
@@ -43,7 +45,10 @@ class Admin extends React.Component {
         })
       const body = await response.json();
       console.log('body = ', body)
-      if (!body.result) {
+      if (!body.rs) {
+        return this.props.history.push('/user/login')
+      }
+      if (body.roleid !== 1) {
         return this.props.history.push('/user/login')
       }
     } catch (error) {
@@ -61,6 +66,18 @@ class Admin extends React.Component {
         ps = new PerfectScrollbar(tables[i]);
       }
     }
+  }
+  componentWillMount() {
+    let novasRotas = this.state.routes.map((rota, index) => {
+      if (rota.layout === "/admin") {
+        return rota
+      }
+      return null
+    })
+    console.log('novasRotas = ', novasRotas)
+    this.setState({
+      routesFiltered: novasRotas.filter(rt => rt)
+    })
   }
   componentWillUnmount() {
     if (navigator.platform.indexOf("Win") > -1) {
@@ -87,21 +104,18 @@ class Admin extends React.Component {
     document.documentElement.classList.toggle("nav-open");
     this.setState({ sidebarOpened: !this.state.sidebarOpened });
   };
-  getRoutes = routes => {
-    return routes.map((prop, key) => {
-      if (prop.layout === "/admin") {
-        return (
-          <Route
-            path={prop.layout + prop.path}
-            component={prop.component}
-            key={key}
-          />
-        );
-      } else {
-        return null;
-      }
-    });
-  };
+
+  getRoutes = _ => {
+    return this.state.routes.map((prop, key) => {
+      // eslint-disable-next-line no-unused-expressions
+      return <Route
+        path={prop.layout + prop.path}
+        component={prop.component}
+        key={key}
+      />
+    })
+  }
+
   handleBgClick = color => {
     this.setState({ backgroundColor: color });
   };
@@ -145,15 +159,15 @@ class Admin extends React.Component {
             />
             <Switch>{this.getRoutes(routes)}</Switch>
             {// we don't want the Footer to be rendered on map page
-            this.props.location.pathname.indexOf("maps") !== -1 ? null : (
-              <Footer fluid />
-            )}
+              this.props.location.pathname.indexOf("maps") !== -1 ? null : (
+                <Footer fluid />
+              )}
           </div>
         </div>
-        <FixedPlugin
+        {/* <FixedPlugin
           bgColor={this.state.backgroundColor}
           handleBgClick={this.handleBgClick}
-        />
+        /> */}
       </>
     );
   }

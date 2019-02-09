@@ -45,7 +45,10 @@ class User extends React.Component {
           })
         const body = await response.json();
         console.log('body = ', body)
-        if (!body.result) {
+        if (!body.rs) {
+          return this.props.history.push('/user/login')
+        }
+        if (body.roleid !== 2) {
           return this.props.history.push('/user/login')
         }
       }
