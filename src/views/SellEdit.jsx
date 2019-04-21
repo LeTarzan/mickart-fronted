@@ -1,4 +1,5 @@
 import React, { Fragment } from "react";
+import { format } from 'date-fns';
 
 import NotificationAlert from "react-notification-alert";
 // reactstrap components
@@ -18,29 +19,33 @@ import {
 } from "reactstrap";
 import Select from 'react-select';
 
-class NewSell extends React.Component {
+class EditSell extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       client_id: '',
+      sell_id: '',
+      clients: [],
+      sells: [],
+      sellsShow: [],
+
       product_id: '',
       product_qtd: '',
       product_amount: '',
       product_color: '',
       product_observation: '',
       products: [],
-      clients: [],
-      address: '',
       sellProducts: [],
       typePayments: [],
       date_delivery: '',
-      type_payment_id: ''
+      type_payment_id: '',
+      token: ''
     }
-    this.addSell = this.addSell.bind(this)
+    this.editSell = this.editSell.bind(this)
     this.addProductToList = this.addProductToList.bind(this)
     this.getClients = this.getClients.bind(this)
-    this.getClientAddress = this.getClientAddress.bind(this)
-    this.getProducts = this.getProducts.bind(this)
+    this.getClientSells = this.getClientSells.bind(this)
+    this.getProductsOfList = this.getProductsOfList.bind(this)
     this.getTypePayments = this.getTypePayments.bind(this)
     this.setClientId = this.setClientId.bind(this)
   }
@@ -58,32 +63,65 @@ class NewSell extends React.Component {
 
   setClientId(clientId) {
     this.setState({
-      address: ''
+      sells: []
     }, () =>
-      this.setState({
-        client_id: clientId
-      }, () => this.getClientAddress(clientId.value))
+        this.setState({
+          client_id: clientId.value
+        }, () => this.getClientSells(clientId.value))
     )
   }
 
-  async getProducts() {
-    const response = await fetch(`/products`)
-    const result = await response.json()
-    console.log('result Products = ', result)
+  setSellId(sellId) {
     this.setState({
-      products: result.data.map(item => ({ value: item.id, label: `${item.name} | comp: ${item.size_available}` }))
+      sell_id: sellId.value
     })
   }
 
-  async getClientAddress(clientId) {
-    console.log('this.state.client_id', clientId)
-    const response = await fetch(`/addresses/${clientId}`)
-    const result = await response.json()
-    console.log('result Address = ', result)
-    this.setState({
-      address: { ...result.data[0] }
-    })
+  async getClientSells(clientId) {
+    try {
+      console.log('this.state.client_id', clientId)
+      this.state.token = localStorage.getItem('token')
+      const response = await fetch(`/sells/${clientId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: this.state.token
+        }
+      })
+      const result = await response.json()
+      console.log('result Sells = ', result)
+      this.setState({
+        sells: result.data,
+        sellsShow: result.data.map(item => {
+          let data = format(item.created_at, 'DD/MM/YYYY HH:mm')
+          return { value: item.sell_id, label: ` ${data} | ${item.amount} | ${item.type_payment_id}` }
+        })
+      })
+    } catch (error) {
+      console.log('error ..', error)
+      this.errorAlert(error.message)
+    }
   }
+  async getProductsOfList(sellId) {
+    try {
+      const response = await fetch(`/lists/by-sell/${sellId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: this.state.token
+        }
+      })
+      const result = await response.json()
+      console.log('result list = ', result)
+      this.setState({
+        products: result.data
+      })
+    } catch (error) {
+      console.log('error ..', error)
+      this.errorAlert(error.message)
+    }
+  }
+  // ----------------------------------------
 
   async getTypePayments() {
     console.log('typePayments ')
@@ -122,71 +160,37 @@ class NewSell extends React.Component {
     })
   }
 
-  async addSell() {
-    console.log('addSell ', this.state)
-    /*
-      client_id: '',
-      product_id: '',
-      product_qtd: '',
-      product_amount: '',
-      product_color: '',
-      product_observation: '',
-      products: [],
-      clients: [],
-      address: '',
-      sellProducts: []
-    */
-
-    /*
-      {
-        "sell": {
-          "amount": 0.00,
-          "user_id": 1,
-          "date_delivery": "2018-12-24"
-        },
-        "list": [
-          {
-            "qtd": 2,
-            "amount": 119.99,
-            "product_id": 1
-          }
-        ],
-        "payment": [
-          {
-            "type_payment_id": 1
-          }
-        ]
-      }
-    */
+  async editSell() {
+    console.log('editSell ', this.state)
     let { client_id, date_delivery, sellProducts, type_payment_id } = this.state
     try {
       const response = await fetch(`
         /sells
       `, {
-        method: 'POST',
-        body: JSON.stringify({
-          sell: {
-            amount: sellProducts.reduce((prev, curr) => (parseFloat(prev) + (parseFloat(curr.qtd) * parseFloat(curr.amount))), 0),
-            date_delivery,
-            user_id: client_id.value
-          },
-          list: [
-            ...sellProducts.map(item => ({
-              product_id: item.id,
-              qtd: item.qtd,
-              amount: item.amount,
-              color: item.color,
-              note: item.observation
-            }))
-          ],
-          payment: [
-            { type_payment_id: type_payment_id.value }
-          ]
-        }),
-        headers:{
-          'Content-Type': 'application/json'
-        }
-      })
+          method: 'POST',
+          body: JSON.stringify({
+            sell: {
+              amount: sellProducts.reduce((prev, curr) => (parseFloat(prev) + (parseFloat(curr.qtd) * parseFloat(curr.amount))), 0),
+              date_delivery,
+              user_id: client_id.value
+            },
+            list: [
+              ...sellProducts.map(item => ({
+                product_id: item.id,
+                qtd: item.qtd,
+                amount: item.amount,
+                color: item.color,
+                note: item.observation
+              }))
+            ],
+            payment: [
+              { type_payment_id: type_payment_id.value }
+            ]
+          }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
       const body = await response.json();
       console.log('body = ', body)
       if (body.data) {
@@ -200,9 +204,10 @@ class NewSell extends React.Component {
   }
 
   componentWillMount() {
+    this.getClientSells(5)
     this.getClients()
-    this.getProducts()
-    this.getTypePayments()
+    // this.getProducts()
+    // this.getTypePayments()
   }
 
   errorAlert(text) {
@@ -243,15 +248,15 @@ class NewSell extends React.Component {
             <NotificationAlert ref="notificationAlert" />
           </div>
           <Row>
-            <Col md="8">
+            <Col md="12">
               <Card>
                 <CardHeader>
-                  <h5 className="title">Nova Venda</h5>
+                  <h5 className="title">Editar Venda</h5>
                 </CardHeader>
                 <CardBody>
                   <Form>
                     <Row>
-                      <Col className="pr-md-1" md="8">
+                      <Col md="12">
                         <FormGroup>
                           <label>Cliente</label>
                           <Select
@@ -265,222 +270,34 @@ class NewSell extends React.Component {
                           />
                         </FormGroup>
                       </Col>
-                      <Col className="pl-md-1" md="4">
-                        <FormGroup>
-                          <label>Novo Cliente?</label>
-                          <Button
-                            className="btn-fill"
-                            color="primary"
-                            style={{display: 'block',
-                              margin: 0,
-                              height: '38px'
-                            }}
-                            >
-                            Adicionar
-                          </Button>
-                        </FormGroup>
-                      </Col>
                     </Row>
-                    {this.state.address && <Fragment>
+                    {console.log('sell id', this.state.sell_id)}
+                    {this.state.client_id && <Fragment>
                       <Row>
                         <Col md="12">
                           <FormGroup>
-                            <label>Endereço</label>
-                            <Input
-                              placeholder="Endereço"
-                            readOnly={true}
-                              type="text"
-                              value={this.state.address.address}
-                              // onChange={e => this.setState({ address: e.target.value })}
-                            />
-                          </FormGroup>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col className="pr-md-1" md="4">
-                          <FormGroup>
-                            <label>Cidade</label>
-                            <Input
-                              placeholder="City"
-                            readOnly={true}
-                              type="text"
-                              value={this.state.address.city}
-                              // onChange={e => this.setState({ city: e.target.value })}
-                            />
-                          </FormGroup>
-                        </Col>
-                        <Col className="px-md-1" md="4">
-                          <FormGroup>
-                            <label>Bairro</label>
-                            <Input
-                              placeholder="Bairro"
-                            readOnly={true}
-                              type="text"
-                              value={this.state.address.district}
-                              // onChange={e => this.setState({ district: e.target.value })}
-                            />
-                          </FormGroup>
-                        </Col>
-                        <Col className="pl-md-1" md="4">
-                          <FormGroup>
-                            <label>Número</label>
-                            <Input
-                              placeholder="Número"
-                              readOnly={true}
-                              type="text"
-                              value={this.state.address.number}
-                              // onChange={e => this.setState({ number: e.target.value })}
-                            />
-                          </FormGroup>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col className="pr-md-1" md="4">
-                          <FormGroup>
-                            <label>Complemento</label>
-                            <Input
-                              placeholder="Complemento"
-                              readOnly={true}
-                              type="text"
-                              value={this.state.address.complement}
-                              // onChange={e => this.setState({ complement: e.target.value })}
-                            />
-                          </FormGroup>
-                        </Col>
-                        <Col className="pl-md-1" md="4">
-                          <FormGroup>
-                            <label>CEP</label>
-                            <Input
-                              placeholder="CEP"
-                              readOnly={true}
-                              type="number"
-                              value={this.state.address.zipcode}
-                              // onChange={e => this.setState({ zipcode: e.target.value })}
+                            <label>Vendas</label>
+                            <Select
+                              className="react-select primary"
+                              classNamePrefix="react-select"
+                              placeholder="Selecione a venda"
+                              name="singleSelect"
+                              value={this.state.sell_id}
+                              options={this.state.sellsShow}
+                              onChange={value => this.setSellId(value)}
                             />
                           </FormGroup>
                         </Col>
                       </Row>
                     </Fragment>}
-                    {this.state.client_id &&
-                      <Row>
-                        <Col className="pr-md-1" md="8">
-                          <FormGroup>
-                            <label>Produto</label>
-                            <Select
-                              className="react-select primary"
-                              classNamePrefix="react-select"
-                              placeholder="Selecione o Produto"
-                              name="singleSelect"
-                              value={this.state.product_id}
-                              options={this.state.products}
-                              onChange={value =>
-                                this.setState({ product_id: value })
-                              }
-                            />
-                          </FormGroup>
-                        </Col>
-                      </Row>}
-                      {this.state.product_id && <Row>
-                        <Col className="pr-md-1" md="2">
-                          <FormGroup>
-                            <label>Valor</label>
-                            <Input
-                              placeholder="Valor"
-                              type="text"
-                              value={this.state.product_amount}
-                              onChange={e => this.setState({ product_amount: e.target.value })}
-                            />
-                          </FormGroup>
-                        </Col>
-                        <Col className="pr-md-1" md="2">
-                          <FormGroup>
-                            <label>Quantidade</label>
-                            <Input
-                              placeholder="Valor"
-                              type="text"
-                              value={this.state.product_qtd}
-                              onChange={e => this.setState({ product_qtd: e.target.value })}
-                            />
-                          </FormGroup>
-                        </Col>
-                        <Col className="pr-md-1" md="4">
-                          <FormGroup>
-                            <label>Cor</label>
-                            <Input
-                              placeholder="Cor"
-                              type="text"
-                              value={this.state.product_color}
-                              onChange={e => this.setState({ product_color: e.target.value })}
-                            />
-                          </FormGroup>
-                        </Col>
-                      </Row>}
-                    {this.state.product_id && <Row>
-                      <Col md="8">
-                        <FormGroup>
-                          <label>Observação</label>
-                          <Input
-                            cols="80"
-                            placeholder="Adicione aqui a observação"
-                            type="textarea"
-                            value={this.state.product_observation}
-                            onChange={e => this.setState({ product_observation: e.target.value })}
-                          />
-                        </FormGroup>
-                        <Button onClick={e => this.addProductToList()}>
-                          Adicionar Produto
-                        </Button>
-                      </Col>
-                    </Row>}
-                    {this.state.sellProducts.length ? <Table>
-                      <thead className="text-primary">
-                        <tr>
-                          <th>Descrição</th>
-                          <th>Cor</th>
-                          <th>Observações</th>
-                          <th>Quantidade</th>
-                          <th>Valor</th>
-                          <th>Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {this.state.sellProducts.map((item, index) => <tr key={index}>
-                          <td>{item.name}</td>
-                          <td>{item.color}</td>
-                          <td>{item.observation}</td>
-                          <td>{item.qtd}</td>
-                          <td>{item.amount}</td>
-                          <td>{item.qtd * item.amount}</td>
-                        </tr>)}
-                      </tbody>
-                    </Table> : ''}
-                    {this.state.sellProducts.length ? <Row>
-                      <Col className="pr-md-1" md="8">
-                        <FormGroup>
-                          <label>Forma de Pagamento</label>
-                          <Select
-                            className="react-select primary"
-                            classNamePrefix="react-select"
-                            placeholder="Selecione o Tipo de Pagamento"
-                            name="typePaymentsSelect"
-                            value={this.state.type_payment_id}
-                            options={this.state.typePayments}
-                            onChange={value => this.setState({ type_payment_id: value })}
-                          />
-                        </FormGroup>
-                      </Col>
-                      <Col className="pl-md-1" md="4">
-                        <FormGroup>
-                          <label>Data Entrega</label>
-                          <Input
-                            placeholder="Data Entrega"
-                            type="text"
-                            value={this.state.date_delivery}
-                            onChange={e => this.setState({ date_delivery: e.target.value })}
-                          />
-                        </FormGroup>
-                      </Col>
-                    </Row> : ''}
+
+                    {this.state.sell_id && <Fragment>
+                      {/* {this.state.sells[this.state.sell_id].map(_ => )} */}
+                      {/* {this.venda.produtos.map((it, index) => (<option key={index} >{{ it.nome }}</option>))} */}
+                      {this.getProductsOfList(this.state.sell_id)}
+                      {console.log('disgraça', this.state.products)}
+                      {console.log('djabo', this.state.sell_id)}
+                    </Fragment>}
                   </Form>
                 </CardBody>
                 <CardFooter>
@@ -494,46 +311,6 @@ class NewSell extends React.Component {
                 </CardFooter>
               </Card>
             </Col>
-            <Col md="4">
-              <Card className="card-user">
-                <CardBody>
-                  <CardText />
-                  <div className="author">
-                    <div className="block block-one" />
-                    <div className="block block-two" />
-                    <div className="block block-three" />
-                    <div className="block block-four" />
-                    <a href="#pablo" onClick={e => e.preventDefault()}>
-                      <img
-                        alt="..."
-                        className="avatar"
-                        src={require("assets/img/emilyz.jpg")}
-                      />
-                      <h5 className="title">Mike Andrew</h5>
-                    </a>
-                    <p className="description">Ceo/Co-Founder</p>
-                  </div>
-                  <div className="card-description">
-                    Do not be scared of the truth because we need to restart the
-                    human foundation in truth And I love you like Kanye loves
-                    Kanye I love Rick Owens’ bed design but the back is...
-                  </div>
-                </CardBody>
-                <CardFooter>
-                  <div className="button-container">
-                    <Button className="btn-icon btn-round" color="facebook">
-                      <i className="fab fa-facebook" />
-                    </Button>
-                    <Button className="btn-icon btn-round" color="twitter">
-                      <i className="fab fa-twitter" />
-                    </Button>
-                    <Button className="btn-icon btn-round" color="google">
-                      <i className="fab fa-google-plus" />
-                    </Button>
-                  </div>
-                </CardFooter>
-              </Card>
-            </Col>
           </Row>
         </div>
       </>
@@ -541,4 +318,4 @@ class NewSell extends React.Component {
   }
 }
 
-export default NewSell;
+export default EditSell;

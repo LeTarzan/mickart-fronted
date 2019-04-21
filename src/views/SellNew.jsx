@@ -1,5 +1,6 @@
 import React, { Fragment } from "react";
 
+
 import NotificationAlert from "react-notification-alert";
 // reactstrap components
 import {
@@ -56,15 +57,6 @@ class NewSell extends React.Component {
     })
   }
 
-  setClientId(clientId) {
-    this.setState({
-      address: ''
-    }, () =>
-      this.setState({
-        client_id: clientId
-      }, () => this.getClientAddress(clientId.value))
-    )
-  }
 
   async getProducts() {
     const response = await fetch(`/products`)
@@ -73,6 +65,16 @@ class NewSell extends React.Component {
     this.setState({
       products: result.data.map(item => ({ value: item.id, label: `${item.name} | comp: ${item.size_available}` }))
     })
+  }
+
+  setClientId(clientId) {
+    this.setState({
+      address: ''
+    }, () =>
+        this.setState({
+          client_id: clientId
+        }, () => this.getClientAddress(clientId.value))
+    )
   }
 
   async getClientAddress(clientId) {
@@ -163,30 +165,30 @@ class NewSell extends React.Component {
       const response = await fetch(`
         /sells
       `, {
-        method: 'POST',
-        body: JSON.stringify({
-          sell: {
-            amount: sellProducts.reduce((prev, curr) => (parseFloat(prev) + (parseFloat(curr.qtd) * parseFloat(curr.amount))), 0),
-            date_delivery,
-            user_id: client_id.value
-          },
-          list: [
-            ...sellProducts.map(item => ({
-              product_id: item.id,
-              qtd: item.qtd,
-              amount: item.amount,
-              color: item.color,
-              note: item.observation
-            }))
-          ],
-          payment: [
-            { type_payment_id: type_payment_id.value }
-          ]
-        }),
-        headers:{
-          'Content-Type': 'application/json'
-        }
-      })
+          method: 'POST',
+          body: JSON.stringify({
+            sell: {
+              amount: sellProducts.reduce((prev, curr) => (parseFloat(prev) + (parseFloat(curr.qtd) * parseFloat(curr.amount))), 0),
+              date_delivery,
+              user_id: client_id.value
+            },
+            list: [
+              ...sellProducts.map(item => ({
+                product_id: item.id,
+                qtd: item.qtd,
+                amount: item.amount,
+                color: item.color,
+                note: item.observation
+              }))
+            ],
+            payment: [
+              { type_payment_id: type_payment_id.value }
+            ]
+          }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
       const body = await response.json();
       console.log('body = ', body)
       if (body.data) {
@@ -271,11 +273,12 @@ class NewSell extends React.Component {
                           <Button
                             className="btn-fill"
                             color="primary"
-                            style={{display: 'block',
+                            style={{
+                              display: 'block',
                               margin: 0,
                               height: '38px'
                             }}
-                            >
+                          >
                             Adicionar
                           </Button>
                         </FormGroup>
@@ -288,10 +291,10 @@ class NewSell extends React.Component {
                             <label>Endereço</label>
                             <Input
                               placeholder="Endereço"
-                            readOnly={true}
+                              readOnly={true}
                               type="text"
                               value={this.state.address.address}
-                              // onChange={e => this.setState({ address: e.target.value })}
+                            // onChange={e => this.setState({ address: e.target.value })}
                             />
                           </FormGroup>
                         </Col>
@@ -302,10 +305,10 @@ class NewSell extends React.Component {
                             <label>Cidade</label>
                             <Input
                               placeholder="City"
-                            readOnly={true}
+                              readOnly={true}
                               type="text"
                               value={this.state.address.city}
-                              // onChange={e => this.setState({ city: e.target.value })}
+                            // onChange={e => this.setState({ city: e.target.value })}
                             />
                           </FormGroup>
                         </Col>
@@ -314,10 +317,10 @@ class NewSell extends React.Component {
                             <label>Bairro</label>
                             <Input
                               placeholder="Bairro"
-                            readOnly={true}
+                              readOnly={true}
                               type="text"
                               value={this.state.address.district}
-                              // onChange={e => this.setState({ district: e.target.value })}
+                            // onChange={e => this.setState({ district: e.target.value })}
                             />
                           </FormGroup>
                         </Col>
@@ -329,7 +332,7 @@ class NewSell extends React.Component {
                               readOnly={true}
                               type="text"
                               value={this.state.address.number}
-                              // onChange={e => this.setState({ number: e.target.value })}
+                            // onChange={e => this.setState({ number: e.target.value })}
                             />
                           </FormGroup>
                         </Col>
@@ -343,7 +346,7 @@ class NewSell extends React.Component {
                               readOnly={true}
                               type="text"
                               value={this.state.address.complement}
-                              // onChange={e => this.setState({ complement: e.target.value })}
+                            // onChange={e => this.setState({ complement: e.target.value })}
                             />
                           </FormGroup>
                         </Col>
@@ -355,7 +358,7 @@ class NewSell extends React.Component {
                               readOnly={true}
                               type="number"
                               value={this.state.address.zipcode}
-                              // onChange={e => this.setState({ zipcode: e.target.value })}
+                            // onChange={e => this.setState({ zipcode: e.target.value })}
                             />
                           </FormGroup>
                         </Col>
@@ -380,41 +383,41 @@ class NewSell extends React.Component {
                           </FormGroup>
                         </Col>
                       </Row>}
-                      {this.state.product_id && <Row>
-                        <Col className="pr-md-1" md="2">
-                          <FormGroup>
-                            <label>Valor</label>
-                            <Input
-                              placeholder="Valor"
-                              type="text"
-                              value={this.state.product_amount}
-                              onChange={e => this.setState({ product_amount: e.target.value })}
-                            />
-                          </FormGroup>
-                        </Col>
-                        <Col className="pr-md-1" md="2">
-                          <FormGroup>
-                            <label>Quantidade</label>
-                            <Input
-                              placeholder="Valor"
-                              type="text"
-                              value={this.state.product_qtd}
-                              onChange={e => this.setState({ product_qtd: e.target.value })}
-                            />
-                          </FormGroup>
-                        </Col>
-                        <Col className="pr-md-1" md="4">
-                          <FormGroup>
-                            <label>Cor</label>
-                            <Input
-                              placeholder="Cor"
-                              type="text"
-                              value={this.state.product_color}
-                              onChange={e => this.setState({ product_color: e.target.value })}
-                            />
-                          </FormGroup>
-                        </Col>
-                      </Row>}
+                    {this.state.product_id && <Row>
+                      <Col className="pr-md-1" md="2">
+                        <FormGroup>
+                          <label>Valor</label>
+                          <Input
+                            placeholder="Valor"
+                            type="text"
+                            value={this.state.product_amount}
+                            onChange={e => this.setState({ product_amount: e.target.value })}
+                          />
+                        </FormGroup>
+                      </Col>
+                      <Col className="pr-md-1" md="2">
+                        <FormGroup>
+                          <label>Quantidade</label>
+                          <Input
+                            placeholder="Valor"
+                            type="text"
+                            value={this.state.product_qtd}
+                            onChange={e => this.setState({ product_qtd: e.target.value })}
+                          />
+                        </FormGroup>
+                      </Col>
+                      <Col className="pr-md-1" md="4">
+                        <FormGroup>
+                          <label>Cor</label>
+                          <Input
+                            placeholder="Cor"
+                            type="text"
+                            value={this.state.product_color}
+                            onChange={e => this.setState({ product_color: e.target.value })}
+                          />
+                        </FormGroup>
+                      </Col>
+                    </Row>}
                     {this.state.product_id && <Row>
                       <Col md="8">
                         <FormGroup>
