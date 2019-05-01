@@ -186,11 +186,18 @@ class AdminNavbar extends React.Component {
                   </DropdownToggle>
                   <DropdownMenu className="dropdown-navbar" right tag="ul">
                     <NavLink tag="li">
-                      <DropdownItem className="nav-item" onClick={e => this.props.history.push('/user/user-profile')}>Profile</DropdownItem>
+                      <DropdownItem className="nav-item" onClick={e => {
+                        let pathName = this.props.location.pathname.substring(0, 7)
+                        if(pathName === '/admin/'){
+                          return this.props.history.push('/admin/profile')
+                        }
+                        this.props.history.push('/user/profile')
+                        }}>Profile</DropdownItem>
                     </NavLink>
                     {/* <NavLink tag="li">
                       <DropdownItem className="nav-item">Settings</DropdownItem>
-                    </NavLink> */}
+                    </NavLink> */
+                    }
                     <DropdownItem divider tag="li"/>
                     <NavLink tag="li">
                       <DropdownItem className="nav-item" onClick={e => this.logOut()}>Log out</DropdownItem>

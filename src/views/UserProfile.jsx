@@ -1,5 +1,7 @@
 import React from "react";
 
+import validateUser from "../validations/index"
+
 import NotificationAlert from "react-notification-alert";
 // reactstrap components
 import {
@@ -65,49 +67,8 @@ class UserProfile extends React.Component {
     }, () => console.log('this.state', this.state))
   }
 
-  async validateUser() {
-    try {
-      if (!this.state.lastname || this.state.name.length < 4) {
-        return { msg: 'Sobrenome inválido', result: false }
-      }
-      if (!this.state.username || this.state.name.length < 6) {
-        return { msg: 'Nome de usuário inválido', result: false }
-      }
-      if (this.state.currentPassword && this.state.currentPassword.length < 8 ) {
-        if(!this.state.newPassword || this.state.newPassword.length < 8 ){
-          return { msg: 'Senha atual inválida', result: false }
-        }
-        return { msg: 'Nova senha inválida', result: false }
-      }
-      if (!this.state.address || this.state.name.length < 4) {
-        return { msg: 'Rua inválida', result: false }
-      }
-      if (!this.state.district || this.state.name.length < 5) {
-        return { msg: 'Cidade inválida', result: false }
-      }
-      if (!this.state.city || this.state.name.length < 3) {
-        return { msg: 'Bairro inválido', result: false }
-      }
-      if (!this.state.number || !Number.isInteger(this.state.number)) {
-        return { msg: 'Número inválido', result: false }
-      }
-      if (!this.state.zipcode || !Number.isInteger(this.state.zipcode)) {
-        return { msg: 'CEP inválido', result: false }
-      }
-      return { result: true }
-    } catch (error) {
-      console.log('error validate..', error)
-    }
-  }
-
   async save() {
     try {
-      let rs = await this.validateUser()
-      console.log('rs ',rs)
-      if (!rs.result) {
-        return this.errorAlert(rs.msg)
-      }
-      let token = localStorage.getItem('token')
       let data = {}
       data.user = {}
       data.address = {}
@@ -132,6 +93,13 @@ class UserProfile extends React.Component {
         district: this.state.district,
         user_id: this.state.id
       }
+      console.log('data..', data)
+      let rs = await validateUser(data)
+      console.log('rs ',rs)
+      if (!rs.result) {
+        return this.errorAlert(rs.msg)
+      }
+      let token = localStorage.getItem('token')
       console.log('data..', data)
       const response = await fetch('/users/', {
         method: 'PUT',

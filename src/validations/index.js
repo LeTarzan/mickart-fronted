@@ -1,30 +1,47 @@
-import ReactJoiValidations from 'react-joi-validation'
-import Joi from 'joi-browser'
+import { validateForm } from 'redux-form-validators'
+import { required, length, numericality } from 'redux-form-validators'
 
-
-const onError = x => {
-  switch (x[0].type) {
-    case 'any.required': {
-      return new Error('Campo obrigatório');
+const validateUserSimple = validateForm({
+  user: {
+    id: [required(), numericality({ int: true })],
+    lastname: [required(), length({ min: 3, max: 25 })],
+    name: [required(), length({ min: 3, max: 10 })]
+  },
+  password: {
+    if: (currentPassword) => {
+      return {
+        id: [required(), numericality({ int: true })],
+        currentPassword: [required(), length({ min: 8, max: 16 })],
+        newPassword: [required(), length({ min: 8, max: 16 })]
+      }
     }
-    default: {
-      return new Error('Campo inválido');
-    }
+  },
+  address: {
+    id: [required(), numericality({ int: true })],
+    address: [required(), length({ min: 5, max: 30 })],
+    district: [required(), length({ min: 4, max: 30 })],
+    city: [required(), length({ min: 4, max: 30 })],
+    zipcode: [required(), length({ min: 8, max: 8 })],
+    complement: [length({ max: 50 })],
+    number: [required(), numericality({ int: true })],
+    user_id: [required(), numericality({ int: true })]
   }
-};
+})
 
-const userSchema = Joi.object().keys({
-  username: Joi.string().alphanum().min(3).max(30).required().error(onError),
-  email: Joi.string().email({ minDomainAtoms: 2 }).required(),
-  name: Joi.string().min(3).max(15).required(),
-  lastname: Joi.string().alphanum().min(3).max(12).required(),
-  address: Joi.string().alphanum().min(3).max(60).required(),
-  city: Joi.string().alphanum().min(3).max(30).required(),
-  district: Joi.string().alphanum().min(3).max(25).required(),
-  number: Joi.number().required(),
-  complement: Joi.string().alphanum().min(3).max(100).required(),
-  zipcode: Joi.number().min(0).max(99999999).required(),
-  comment: Joi.string().alphanum().length(100).required()
-});
 
-export default userSchema;
+const validateUser = Object.assign(validateUserSimple.messages, {
+  required: {
+    id: "errors.required",
+    defaultMessage: "Campo obrigatório"
+  },
+  tooSmall: {
+    id: "errors.presence",
+    defaultMessage: "Tamanho do campo excede o permitido"
+  },
+  tooShort: {
+    id: "errors.tooShort",
+    defaultMessage: "Tamanho inválido, mínimo de {count, number} chars"
+  },
+})
+
+export default validateUser

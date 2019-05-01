@@ -1,6 +1,4 @@
 import React from "react";
-import validate from 'react-joi-validation';
-import schemas from '../validations/index'
 
 import NotificationAlert from "react-notification-alert";
 // reactstrap components
@@ -35,10 +33,6 @@ class UserProfile extends React.Component {
       zipcode: '',
       comment: ''
     }
-    this.validationOptions = {
-      joiSchema: schemas.userSchema,
-      only: this.state
-    };
     this.addUser = this.addUser.bind(this)
     this.errorAlert = this.errorAlert.bind(this)
     this.successAlert = this.successAlert.bind(this)
@@ -49,11 +43,6 @@ class UserProfile extends React.Component {
 
     let { email, password, username, name, lastname, comment, ...address } = this.state
     try {
-      const rs = await validate(UserProfile, this.validationOptions, {abortEarly: false})
-      console.log(rs);
-      if(rs){
-        throw Error()
-      }
       const response = await fetch(`
         /users
       `, {
