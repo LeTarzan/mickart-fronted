@@ -4,14 +4,12 @@ import classNames from "classnames";
 
 // reactstrap components
 import {
-  Button,
   Collapse,
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
   UncontrolledDropdown,
   Input,
-  InputGroup,
   NavbarBrand,
   Navbar,
   NavLink,
@@ -19,7 +17,7 @@ import {
   Container,
   Modal
 } from "reactstrap";
-import { longStackSupport } from "q";
+// import { longStackSupport } from "q";
 
 class AdminNavbar extends React.Component {
   constructor(props) {
@@ -36,7 +34,7 @@ class AdminNavbar extends React.Component {
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateColor);
   }
-  // function that adds color white/transparent to the navbar on resize (this is for the collapse)
+
   updateColor = () => {
     if (window.innerWidth < 993 && this.state.collapseOpen) {
       this.setState({
@@ -71,7 +69,7 @@ class AdminNavbar extends React.Component {
   };
 
   logOut(){
-    localStorage.removeItem('token')
+    sessionStorage.removeItem('token')
     return this.props.history.push('/login')
   }
 

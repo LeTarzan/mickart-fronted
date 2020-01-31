@@ -23,7 +23,7 @@ class Dashboard extends React.Component {
   }
 
   async getSellsFromAPI() {
-    let token = localStorage.getItem('token')
+    let token = sessionStorage.getItem('token')
     const response = await fetch(`
       /sells
     `, {

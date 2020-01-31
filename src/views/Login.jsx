@@ -1,15 +1,12 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
 import NotificationAlert from "react-notification-alert";
-import { Fragment } from "react";
 import {
-  Alert,
   Button,
   Card,
   CardHeader,
   CardBody,
   CardFooter,
-  CardText,
   FormGroup,
   Form,
   Input,
@@ -29,35 +26,35 @@ class Login extends React.Component {
   }
 
   async login() {
-    console.log('Login ', this.state)
+
     let { username, password } = this.state
-    try {
-      const response = await fetch(`
-      http://localhost:3000/login/
-    `, {
-          method: 'POST',
-          body: JSON.stringify({
-            password,
-            username
-          }),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-      const body = await response.json();
-      console.log('body = ', body)
-      if (body.msg) {
-        localStorage.setItem('token', body.token);
-        if (body.rid === 2) {
-          return this.props.history.push('/user/dashboard-user')
-        }
-        return this.props.history.push('/admin/dashboard')
+    
+    await fetch(`http://localhost:3000/login/`, {
+      method: 'POST',
+      body: JSON.stringify({
+        password,
+        username
+      }),
+      headers: {
+        'Content-Type': 'application/json'
       }
-      throw new Error()
-    } catch (error) {
-      console.log('error login ', error)
-      return this.errorAlert('Usuário ou senha incorreto!')
-    }
+    })
+      .then(async result => await result.json())
+      .then(result => {
+        if (result.token) {
+          sessionStorage.setItem('token', result.token);
+          if (result.rid === 2) {
+            return this.props.history.push('/user/dashboard-user')
+          }
+          return this.props.history.push('/admin/dashboard')
+        }
+        if (result.msg) return this.errorAlert('Usuário ou senha incorreto!')
+        throw new Error('Erro ao logar!')
+      })
+      .catch(err => {
+        console.log('error.. ', err)
+        return this.errorAlert(err.message) 
+      })
   }
 
   errorAlert(text) {
@@ -117,14 +114,14 @@ class Login extends React.Component {
                 </Form>
               </CardBody>
               <CardFooter>
-              <Col className="pr-md-1" md="12">
-                <Button onClick={this.login} className="btn-fill" color="primary" type="submit">
-                  Entrar
+                <Col className="pr-md-1" md="12">
+                  <Button onClick={this.login} className="btn-fill" color="primary" type="submit">
+                    Entrar
                   </Button>
-              </Col>
+                </Col>
               </CardFooter>
               <CardFooter>
-                <Button onClick={() => this.props.history.push('/user/esqueci-senha') } style={{ float: "center" }} color="link">Esqueci minha senha</Button>
+                <Button onClick={() => this.props.history.push('/user/esqueci-senha')} style={{ float: "center" }} color="link">Esqueci minha senha</Button>
               </CardFooter>
             </Card>
           </Col>

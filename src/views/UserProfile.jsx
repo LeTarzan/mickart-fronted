@@ -1,6 +1,6 @@
 import React from "react";
 
-import validateUser from "../validations/index"
+import { validateUser } from "../validations/validateUser"
 
 import NotificationAlert from "react-notification-alert";
 // reactstrap components
@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardBody,
   CardFooter,
-  CardText,
   FormGroup,
   Form,
   Input,
@@ -38,7 +37,7 @@ class UserProfile extends React.Component {
   }
 
   async getDataUser() {
-    let token = localStorage.getItem('token')
+    let token = sessionStorage.getItem('token')
     const response = await fetch('/users/full/', {
       method: 'GET',
       headers: {
@@ -99,7 +98,7 @@ class UserProfile extends React.Component {
       if (!rs.result) {
         return this.errorAlert(rs.msg)
       }
-      let token = localStorage.getItem('token')
+      let token = sessionStorage.getItem('token')
       console.log('data..', data)
       const response = await fetch('/users/', {
         method: 'PUT',

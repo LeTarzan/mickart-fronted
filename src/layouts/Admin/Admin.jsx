@@ -28,7 +28,7 @@ class Admin extends React.Component {
   }
   async verifyToken() {
     try {
-      const token = localStorage.getItem('token')
+      const token = sessionStorage.getItem('token')
       if (!token) {
         return this.props.history.push('/user/login')
       }

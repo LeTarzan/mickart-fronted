@@ -80,7 +80,7 @@ class EditSell extends React.Component {
   async getClientSells(clientId) {
     try {
       console.log('this.state.client_id', clientId)
-      this.state.token = localStorage.getItem('token')
+      this.state.token = sessionStorage.getItem('token')
       const response = await fetch(`/sells/${clientId}`, {
         method: 'GET',
         headers: {

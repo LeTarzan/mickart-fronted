@@ -29,7 +29,7 @@ class Tables extends React.Component {
   }
 
   async getSells() {
-    let token = localStorage.getItem('token')
+    let token = sessionStorage.getItem('token')
     const tokenobj = {}
     tokenobj.token = token
     const response = await fetch(`
@@ -47,7 +47,7 @@ class Tables extends React.Component {
       sells: result.data
     })
   }
-
+    
   goToDetail(id) {
     console.log('goToDetail', id)
     this.props.history.push(`/admin/sell/${id}`)

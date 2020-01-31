@@ -28,7 +28,7 @@ class User extends React.Component {
   async verifyToken() {
     try {
       if (this.props.location.pathname !== '/user/esqueci-senha') {
-        const token = localStorage.getItem('token')
+        const token = sessionStorage.getItem('token')
         if (!token) {
           return this.props.history.push('/user/login')
         }
